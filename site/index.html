@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraform Docker Sandbox</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+        }
+        main {
+            max-width: 32rem;
+            padding: 2rem;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 0.5rem;
+        }
+        p {
+            color: #9aa7b4;
+            line-height: 1.6;
+        }
+        code {
+            color: #b4c8dc;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Provisioned by Terraform</h1>
+        <p>This page is served by <code>tf-sandbox-nginx</code>, a container built and configured entirely with Terraform. Run <code>terraform destroy</code> and it's gone.</p>
+    </main>
+</body>
+</html>

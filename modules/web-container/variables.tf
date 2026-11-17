@@ -31,8 +31,11 @@ variable "external_port" {
   default     = null
 }
 
-variable "host_port" {
-  description = "Port on your local machine that maps to the container's port 80"
-  type        = number
-  default     = 8080
+variable "uploads" {
+  description = "Files to copy into the container: file is the path inside the container, content is the file's contents."
+  type        = list(object({
+    file    = string
+    content = string
+  }))
+  default = []
 }

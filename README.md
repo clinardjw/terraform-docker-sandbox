@@ -32,6 +32,8 @@ flowchart LR
 ├── main.tf              # Network plus the nginx and redis module calls
 ├── variables.tf         # host_port (default 8080)
 ├── outputs.tf           # URL, network name, container names
+├── site/
+│   └── index.html       # Custom page uploaded into the nginx container
 ├── versions.tf          # Terraform and Docker provider requirements
 ├── .github/workflows/
 │   └── terraform.yml    # CI: terraform fmt -check and validate on every push
@@ -62,6 +64,8 @@ dynamic "ports" {
 
 Same module, two very different exposure levels, with no duplicated code.
 
+The module also takes an optional `uploads` list for copying files into a container. The root config uses it to replace nginx's default welcome page with `site/index.html`. Edit that file and run `terraform apply` again, and Terraform replaces the container with the new page.
+
 ## Requirements
 
 - [Terraform](https://developer.hashicorp.com/terraform/install) 1.5 or newer
@@ -76,7 +80,7 @@ terraform plan
 terraform apply
 ```
 
-Then open the URL from the outputs:
+Then open the URL from the outputs to see the custom page:
 
 ```
 url = "http://localhost:8080"
@@ -123,6 +127,6 @@ Pulled images are removed on destroy by default. Set `keep_image_locally = true`
 ## Roadmap
 
 - [x] GitHub Actions workflow running `terraform fmt -check` and `terraform validate` on every push
-- [ ] Serve a custom page from nginx through a mounted volume
+- [x] Serve a custom page from nginx
 - [ ] Add a small app container that reads and writes to Redis
 - [ ] Health checks on both containers

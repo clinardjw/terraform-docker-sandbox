@@ -12,10 +12,18 @@ module "nginx" {
   network_name   = docker_network.sandbox.name
   internal_port  = 80
   external_port  = var.host_port
+
+  # Replace nginx's default welcome page with our own
+  uploads = [
+    {
+      file    = "/usr/share/nginx/html/index.html"
+      content = file("${path.module}/site/index.html")
+    }
+  ]
 }
 
 # redis: no internal_port/external_port passed, so the module skips
-# creating a ports block entirely — only reachable inside the network.
+# creating a ports block entirely. It is only reachable inside the network.
 module "redis" {
   source = "./modules/web-container"
 

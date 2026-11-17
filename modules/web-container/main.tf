@@ -21,4 +21,14 @@ resource "docker_container" "this" {
       external = var.external_port
     }
   }
+
+  # Copy files (like a custom web page) into the container at creation time.
+  # Changing a file's content replaces the container on the next apply.
+  dynamic "upload" {
+    for_each = var.uploads
+    content {
+      file    = upload.value.file
+      content = upload.value.content
+    }
+  }
 }
