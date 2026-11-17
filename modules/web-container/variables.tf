@@ -39,7 +39,7 @@ variable "external_port" {
 
 variable "uploads" {
   description = "Files to copy into the container: file is the path inside the container, content is the file's contents."
-  type        = list(object({
+  type = list(object({
     file    = string
     content = string
   }))
@@ -48,7 +48,7 @@ variable "uploads" {
 
 variable "healthcheck" {
   description = "Optional Docker health check. test is the command to run; the timing fields have sensible defaults. Leave null for no health check."
-  type        = object({
+  type = object({
     test         = list(string)
     interval     = optional(string, "10s")
     timeout      = optional(string, "3s")
