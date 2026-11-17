@@ -1,5 +1,7 @@
 # Terraform Docker Sandbox
 
+![Terraform checks](https://github.com/clinardjw/terraform-docker-sandbox/actions/workflows/terraform.yml/badge.svg)
+
 A small infrastructure-as-code lab that uses Terraform to stand up a local Docker environment: a public-facing **nginx** web server and a private **Redis** cache on a shared network.
 
 One reusable module builds both containers. The only difference is whether a port gets exposed to the host.
@@ -31,6 +33,8 @@ flowchart LR
 ├── variables.tf         # host_port (default 8080)
 ├── outputs.tf           # URL, network name, container names
 ├── versions.tf          # Terraform and Docker provider requirements
+├── .github/workflows/
+│   └── terraform.yml    # CI: terraform fmt -check and validate on every push
 └── modules/
     └── web-container/   # Reusable module: image + container + optional port
         ├── main.tf
@@ -118,7 +122,7 @@ Pulled images are removed on destroy by default. Set `keep_image_locally = true`
 
 ## Roadmap
 
-- [ ] GitHub Actions workflow running `terraform fmt -check` and `terraform validate` on every push
+- [x] GitHub Actions workflow running `terraform fmt -check` and `terraform validate` on every push
 - [ ] Serve a custom page from nginx through a mounted volume
 - [ ] Add a small app container that reads and writes to Redis
 - [ ] Health checks on both containers
