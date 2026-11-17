@@ -31,3 +31,20 @@ module "redis" {
   image_name     = "redis:alpine"
   network_name   = docker_network.sandbox.name
 }
+
+# worker: a tiny "app" that talks to redis over the shared network.
+# Every 5 seconds it increments a counter and prints the new value.
+# It reuses the redis:alpine image just for its redis-cli tool.
+module "worker" {
+  source = "./modules/web-container"
+
+  container_name     = "tf-sandbox-worker"
+  image_name         = "redis:alpine"
+  network_name       = docker_network.sandbox.name
+  keep_image_locally = true # the redis module manages this image too
+
+  command = [
+    "sh", "-c",
+    "while true; do redis-cli -h ${module.redis.container_name} INCR sandbox:heartbeats; sleep 5; done"
+  ]
+}

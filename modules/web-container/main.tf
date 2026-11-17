@@ -4,8 +4,9 @@ resource "docker_image" "this" {
 }
 
 resource "docker_container" "this" {
-  name  = var.container_name
-  image = docker_image.this.image_id
+  name    = var.container_name
+  image   = docker_image.this.image_id
+  command = var.command
 
   networks_advanced {
     name = var.network_name

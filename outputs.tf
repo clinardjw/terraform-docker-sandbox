@@ -13,3 +13,7 @@ output "network_name" {
 output "cache_container_name" {
   value = module.redis.container_name
 }
+
+output "worker_container_name" {
+  value = module.worker.container_name
+}

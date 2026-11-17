@@ -2,9 +2,9 @@
 
 ![Terraform checks](https://github.com/clinardjw/terraform-docker-sandbox/actions/workflows/terraform.yml/badge.svg)
 
-A small infrastructure-as-code lab that uses Terraform to stand up a local Docker environment: a public-facing **nginx** web server and a private **Redis** cache on a shared network.
+A small infrastructure-as-code lab that uses Terraform to stand up a local Docker environment: a public-facing **nginx** web server, a private **Redis** cache, and a **worker** that writes to Redis, all on a shared network.
 
-One reusable module builds both containers. The only difference is whether a port gets exposed to the host.
+One reusable module builds all three containers. They differ only in their inputs: whether a port is exposed, which files are uploaded, and what command runs.
 
 ## What it builds
 
@@ -15,7 +15,9 @@ flowchart LR
     subgraph net["Docker network: tf-sandbox-net"]
         nginx["tf-sandbox-nginx<br/>nginx:latest"]
         redis["tf-sandbox-redis<br/>redis:alpine"]
+        worker["tf-sandbox-worker<br/>redis:alpine"]
         nginx -.->|reachable by name| redis
+        worker -->|INCR every 5s| redis
     end
 ```
 
@@ -23,13 +25,14 @@ flowchart LR
 |---|---|---|---|
 | `tf-sandbox-nginx` | `nginx:latest` | Yes, on `localhost:8080` | Yes |
 | `tf-sandbox-redis` | `redis:alpine` | No | Yes, as `tf-sandbox-redis:6379` |
+| `tf-sandbox-worker` | `redis:alpine` | No | Yes |
 | `tf-sandbox-net` | Docker network | n/a | n/a |
 
 ## Project structure
 
 ```
 .
-├── main.tf              # Network plus the nginx and redis module calls
+├── main.tf              # Network plus the nginx, redis, and worker modules
 ├── variables.tf         # host_port (default 8080)
 ├── outputs.tf           # URL, network name, container names
 ├── site/
@@ -107,6 +110,23 @@ docker run --rm --network tf-sandbox-net redis:alpine redis-cli -h tf-sandbox-re
 # PONG
 ```
 
+### Watch the worker
+
+The worker increments a counter in Redis every 5 seconds and prints the new value:
+
+```bash
+docker logs -f tf-sandbox-worker
+# 1
+# 2
+# 3
+```
+
+Read the same counter straight from Redis:
+
+```bash
+docker exec tf-sandbox-redis redis-cli GET sandbox:heartbeats
+```
+
 ### Tear it down
 
 ```bash
@@ -123,10 +143,11 @@ Pulled images are removed on destroy by default. Set `keep_image_locally = true`
 | `network_name` | Name of the shared Docker network |
 | `web_container_name` | Name of the nginx container |
 | `cache_container_name` | Name of the Redis container |
+| `worker_container_name` | Name of the worker container |
 
 ## Roadmap
 
 - [x] GitHub Actions workflow running `terraform fmt -check` and `terraform validate` on every push
 - [x] Serve a custom page from nginx
-- [ ] Add a small app container that reads and writes to Redis
+- [x] Add a small app container that reads and writes to Redis
 - [ ] Health checks on both containers

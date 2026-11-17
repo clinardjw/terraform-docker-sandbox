@@ -19,6 +19,12 @@ variable "keep_image_locally" {
   default     = false
 }
 
+variable "command" {
+  description = "Command to run instead of the image's default. Leave null to use the image default."
+  type        = list(string)
+  default     = null
+}
+
 variable "internal_port" {
   description = "Port the container listens on internally. Set to null to skip exposing any port (e.g. for a backend service like redis that's only reached by other containers)."
   type        = number
