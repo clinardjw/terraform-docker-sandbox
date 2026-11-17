@@ -45,3 +45,15 @@ variable "uploads" {
   }))
   default = []
 }
+
+variable "healthcheck" {
+  description = "Optional Docker health check. test is the command to run; the timing fields have sensible defaults. Leave null for no health check."
+  type        = object({
+    test         = list(string)
+    interval     = optional(string, "10s")
+    timeout      = optional(string, "3s")
+    retries      = optional(number, 3)
+    start_period = optional(string, "5s")
+  })
+  default = null
+}

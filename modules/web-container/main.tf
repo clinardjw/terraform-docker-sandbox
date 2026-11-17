@@ -32,4 +32,17 @@ resource "docker_container" "this" {
       content = upload.value.content
     }
   }
+
+  # Optional Docker health check. `docker ps` shows the result as
+  # (healthy) or (unhealthy) next to the container.
+  dynamic "healthcheck" {
+    for_each = var.healthcheck == null ? [] : [var.healthcheck]
+    content {
+      test         = healthcheck.value.test
+      interval     = healthcheck.value.interval
+      timeout      = healthcheck.value.timeout
+      retries      = healthcheck.value.retries
+      start_period = healthcheck.value.start_period
+    }
+  }
 }

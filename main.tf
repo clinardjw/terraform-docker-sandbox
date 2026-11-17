@@ -8,7 +8,7 @@ module "nginx" {
   source = "./modules/web-container"
 
   container_name = "tf-sandbox-nginx"
-  image_name     = "nginx:latest"
+  image_name     = "nginx:alpine"
   network_name   = docker_network.sandbox.name
   internal_port  = 80
   external_port  = var.host_port
@@ -20,6 +20,11 @@ module "nginx" {
       content = file("${path.module}/site/index.html")
     }
   ]
+
+  # The alpine image ships busybox wget, so we can probe the page directly
+  healthcheck = {
+    test = ["CMD", "wget", "-q", "--spider", "http://localhost/"]
+  }
 }
 
 # redis: no internal_port/external_port passed, so the module skips
@@ -30,6 +35,10 @@ module "redis" {
   container_name = "tf-sandbox-redis"
   image_name     = "redis:alpine"
   network_name   = docker_network.sandbox.name
+
+  healthcheck = {
+    test = ["CMD", "redis-cli", "ping"]
+  }
 }
 
 # worker: a tiny "app" that talks to redis over the shared network.

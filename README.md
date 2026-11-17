@@ -4,7 +4,7 @@
 
 A small infrastructure-as-code lab that uses Terraform to stand up a local Docker environment: a public-facing **nginx** web server, a private **Redis** cache, and a **worker** that writes to Redis, all on a shared network.
 
-One reusable module builds all three containers. They differ only in their inputs: whether a port is exposed, which files are uploaded, and what command runs.
+One reusable module builds all three containers. They differ only in their inputs: whether a port is exposed, which files are uploaded, what command runs, and how health is checked.
 
 ## What it builds
 
@@ -13,7 +13,7 @@ flowchart LR
     host["Your machine<br/>localhost:8080"] -->|port 8080 → 80| nginx
 
     subgraph net["Docker network: tf-sandbox-net"]
-        nginx["tf-sandbox-nginx<br/>nginx:latest"]
+        nginx["tf-sandbox-nginx<br/>nginx:alpine"]
         redis["tf-sandbox-redis<br/>redis:alpine"]
         worker["tf-sandbox-worker<br/>redis:alpine"]
         nginx -.->|reachable by name| redis
@@ -23,7 +23,7 @@ flowchart LR
 
 | Resource | Image | Reachable from host? | Reachable on network? |
 |---|---|---|---|
-| `tf-sandbox-nginx` | `nginx:latest` | Yes, on `localhost:8080` | Yes |
+| `tf-sandbox-nginx` | `nginx:alpine` | Yes, on `localhost:8080` | Yes |
 | `tf-sandbox-redis` | `redis:alpine` | No | Yes, as `tf-sandbox-redis:6379` |
 | `tf-sandbox-worker` | `redis:alpine` | No | Yes |
 | `tf-sandbox-net` | Docker network | n/a | n/a |
@@ -110,6 +110,18 @@ docker run --rm --network tf-sandbox-net redis:alpine redis-cli -h tf-sandbox-re
 # PONG
 ```
 
+### Check container health
+
+nginx and Redis both have Docker health checks. nginx fetches its own page with `wget`, and Redis answers `redis-cli ping`:
+
+```bash
+docker ps --format "table {{.Names}}\t{{.Status}}"
+# NAMES               STATUS
+# tf-sandbox-worker   Up 30 seconds
+# tf-sandbox-nginx    Up 31 seconds (healthy)
+# tf-sandbox-redis    Up 31 seconds (healthy)
+```
+
 ### Watch the worker
 
 The worker increments a counter in Redis every 5 seconds and prints the new value:
@@ -150,4 +162,4 @@ Pulled images are removed on destroy by default. Set `keep_image_locally = true`
 - [x] GitHub Actions workflow running `terraform fmt -check` and `terraform validate` on every push
 - [x] Serve a custom page from nginx
 - [x] Add a small app container that reads and writes to Redis
-- [ ] Health checks on both containers
+- [x] Health checks on nginx and Redis
